@@ -1,3 +1,7 @@
+import '@/app/ui/global.css';
+import {inter} from '@/app/ui/fonts';
+import Link from 'next/link';
+
 export default function RootLayout({
   children,
 }: {
@@ -5,7 +9,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className={`${inter.className} antialiased`}>
+        <Link href='/dashboard'>/dashboard</Link>
+        {children}
+        </body>
     </html>
   );
 }

@@ -1,0 +1,10 @@
+.shape {
+  height: 0;
+  width: 0;
+  border-bottom: 30px solid black;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+}
+/* 解释：对标vue style scoped */
+/* 作用，就是给组件添加局部样式，不用担心类名冲突 */
+/* 原理：它会把这个导入的styles.shape 编译成乱码类名 */
