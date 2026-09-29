@@ -4,17 +4,35 @@ import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Link from 'next/link';
 import { generatePagination } from '@/app/lib/utils';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 export default function Pagination({ totalPages }: { totalPages: number }) {
   // NOTE: Uncomment this code in Chapter 10
 
-  // const allPages = generatePagination(currentPage, totalPages);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentPage = Number(searchParams.get('page'))||1;
+
+  const allPages = generatePagination(currentPage, totalPages);
+  // 此工具函数，生成[1,...,4,【5】,6,...,10]这样的数组，【数据驱动组件】，下面的ui基于数组渲染的。
+  // 如何得到当前页和总页数？
+  // 总页数通过props传
+  // 当前页，通过 url 得到 步骤 useSearchParams()
+
+  // 要实现分页，还有一个必须的，每个页码的对应的url，写个生成函数吧
+
+  const createPageURL=(pageNumber:number|string)=>{
+    const params = new URLSearchParams(searchParams);
+    params.set('page',pageNumber.toString())
+    // 返回需要的url
+    return `${pathname}?${params.toString()}`
+  }
 
   return (
     <>
       {/*  NOTE: Uncomment this code in Chapter 10 */}
 
-      {/* <div className="inline-flex">
+      <div className="inline-flex">
         <PaginationArrow
           direction="left"
           href={createPageURL(currentPage - 1)}
@@ -47,7 +65,7 @@ export default function Pagination({ totalPages }: { totalPages: number }) {
           href={createPageURL(currentPage + 1)}
           isDisabled={currentPage >= totalPages}
         />
-      </div> */}
+      </div>
     </>
   );
 }

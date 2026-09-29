@@ -28,6 +28,8 @@ export default async function Page() {
       </div>
       <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
         {/* 思考 suspense 和 fallback 也可以移动到组件内部 */}
+        {/* 不可以这么干，ai说这样做，需要组件内部有同步的部分，要分拆，很麻烦 */}
+        {/* 只需要将数据的获取，放入组件内部就可以了 */}
         <Suspense fallback={<RevenueChartSkeleton/>}>
           <RevenueChart/>
         </Suspense>
