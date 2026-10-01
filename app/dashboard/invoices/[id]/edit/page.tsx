@@ -1,6 +1,7 @@
 import Form from '@/app/ui/invoices/edit-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchInvoiceById,fetchCustomers} from '@/app/lib/data';
+import { notFound } from 'next/navigation';
  
 export default async function Page(props:{params:Promise<{id:string}>}) {
     const params = await props.params;
@@ -9,6 +10,9 @@ export default async function Page(props:{params:Promise<{id:string}>}) {
     fetchInvoiceById(id),//拿到id，找到对应的那个发票
     fetchCustomers(),//获取所有用户
   ]);
+  if(!invoice){
+    notFound();
+  }
   return (
     <main>
       <Breadcrumbs

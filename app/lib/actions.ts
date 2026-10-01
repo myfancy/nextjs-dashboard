@@ -39,11 +39,18 @@ export async function createInvoice(formData:FormData) {
     const amountInCents = amount*100; //使用分来统计金额，规避浮点问题
 
     const date = new Date().toISOString().split('T')[0];
-
-    await sql`
-        INSERT INTO invoices (customer_id,amount,status,date)
-        VALUES (${customerId},${amountInCents},${status},${date})
-    `;
+    try{
+        await sql`
+            INSERT INTO invoices (customer_id,amount,status,date)
+            VALUES (${customerId},${amountInCents},${status},${date})
+        `;
+    }catch(e){
+        console.log(e);
+        return {
+            message:'数据库错误：创建新发票失败'
+        }
+    }
+    
     revalidatePath('/dashboard/invoices');//这是重新校验缓存的意思
     // 为什么要？因为react搞了缓存
     redirect('/dashboard/invoices');//重定向至这个页面获取最新数据
@@ -65,20 +72,35 @@ export async function updateInvoice(id:string,formData:FormData) {
     // 这里的修改有些抽象，顾客创建了发票，发票随机生成唯一id，结果这个id对应的顾客还能改。
     // 这里这是演示。
     // 实际上可以设计不需更改顾客，html中没有对应的下拉框，actions中没有对应的字段修改。
-    await sql`
-        UPDATE invoices
-        SET customer_id=${customerId},amount=${amountInCents},status=${status}
-        WHERE id=${id}
-    `;
+    try{
+        await sql`
+            UPDATE invoices
+            SET customer_id=${customerId},amount=${amountInCents},status=${status}
+            WHERE id=${id}
+        `;
+    }catch(e){
+        console.log(e);
+        return {
+            message:'数据库失败：更新发票失败'
+        }
+    }
     revalidatePath('/dashboard/invoices');
     redirect('/dashboard/invoices');
 }
 
 export async function deleteInvoice(id:string) {
-    await sql`
-        DELETE FROM invoices
-        WHERE id=${id}
-    `
+    throw new Error('模拟失败')
+    try{
+        await sql`
+            DELETE FROM invoices
+            WHERE id=${id}
+        `
+    }catch(e){
+        console.log(e);
+        return {
+            message:'数据库错误：删除发票失败'
+        }
+    }
     revalidatePath('/dashboard/invoices');
 }
 
