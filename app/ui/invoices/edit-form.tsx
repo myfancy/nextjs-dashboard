@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
+import { updateInvoice} from '@/app/lib/actions';
 
 export default function EditInvoiceForm({
   invoice,
@@ -17,8 +18,17 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
+  const updateInvoiceWithId = updateInvoice.bind(null,invoice.id);
+  // 原理
+  // function a(b,c){
+  //     console.log(b,c);
+  // }
+  // const d = a.bind(null,1);
+  // d(2);
+  
   return (
-    <form>
+    <form action={updateInvoiceWithId}>
+      {/* 这里必须明白，action接受一个函数名，而不是函数的执行，要带id，不能执行，否则组件加载会直接执行server action函数 */}
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
