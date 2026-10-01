@@ -27,6 +27,12 @@ export function UpdateInvoice({ id }: { id: string }) {
 
 export function DeleteInvoice({ id }: { id: string }) {
   const deleteInvoiceWithId = deleteInvoice.bind(null, id);
+  // const handleSubmit = async ():Promise<void>=>{
+  //   await deleteInvoiceWithId()
+  // }
+  // 这样包可以消除ts错误，但是程序不能正常运行
+  // 错误原因分析，action期望的函数返回值是Promise<void>，可是你的函数实际返回Promise<{message:string}>
+  // chapter12 先不解决此问题，也能正常运行，13章再说。
   return (
     <form action={deleteInvoiceWithId}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
