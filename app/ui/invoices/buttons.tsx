@@ -30,11 +30,18 @@ export function DeleteInvoice({ id }: { id: string }) {
   // const handleSubmit = async ():Promise<void>=>{
   //   await deleteInvoiceWithId()
   // }
+  // <form action = {handleSubmit}>
   // 这样包可以消除ts错误，但是程序不能正常运行
   // 错误原因分析，action期望的函数返回值是Promise<void>，可是你的函数实际返回Promise<{message:string}>
   // chapter12 先不解决此问题，也能正常运行，13章再说。
+
+  // 解释：上面的错误在于，不知道action只能接受服务器函数，局部的函数，必须手动标明use server
+  const handleSubmit = async ()=>{
+    'use server';
+    await deleteInvoiceWithId();//手动放弃服务器段返回的错误，以后考虑接收使用
+  }
   return (
-    <form action={deleteInvoiceWithId}>
+    <form action={handleSubmit}>
       <button type="submit" className="rounded-md border p-2 hover:bg-gray-100">
         <span className="sr-only">Delete</span>
         <TrashIcon className="w-5" />

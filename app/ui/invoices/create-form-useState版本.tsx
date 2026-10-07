@@ -9,20 +9,42 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import  { createInvoice,State } from '@/app/lib/actions';
-import { useActionState } from 'react';
+import { useActionState, useState, useTransition, type FormEvent } from 'react';
 
 export default function Form({ customers }: { customers: CustomerField[] }) {
   const initialState:State = {
     message: null,
     errors: {},
-    rawFormData: { customerId: null, amount: null, status: null },//服务器返回原生数据，用来回填，防止情况用户输入
+    rawFormData: { customerId: null, amount: null, status: null },
   }
   const [state,formAction] = useActionState(createInvoice,initialState);
-  // 校验失败时，服务端把原始输入放回 state；递增 submissionId 让 form 重新挂载，
-  // 这样 defaultValue/defaultChecked 才会用返回值重新初始化非受控控件。
-  // 若改用 useState，拆出的子组件带新 key 时会重新初始化 state；Form 本身不重挂载时则不会。
+  const [isPending,startTransition] = useTransition();
+  // 不一定非要依赖服务器端返回原始数据，因为原始数据本来就在本地呢
+  // 但是这样比较麻烦一点。
+  const [formValues, setFormValues] = useState({
+    customerId: '',
+    amount: '',
+    status: '' as '' | 'pending' | 'paid',
+  });
+
+  // 手动提交以避开直接使用 <form action={formAction}> 时遇到的表单重置问题；
+  // 这些控件由 formValues 控制，输入值保存在客户端 state 中。
+  // 当前方案是，使用受控组件保存用户输入状态。
+
+  // 如果选择非受控组件，自身保存用户状态，会出现问题。普通的输入型input正常，但是radio 和 select这些会被情况用户选择。
+  // 出现问题（普通input控件可以保存状态，但是select input type=radio显示不正常。）
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const submittedForm = new FormData(event.currentTarget);
+    startTransition(() => {
+      formAction(submittedForm);
+    });
+  }
+
   return (
-    <form key={state.submissionId ?? 0} action={formAction}>
+    // 通过 onSubmit 手动构造 FormData 并调用 action，这样可以添加阻止默认事件的代码，防止清空用户输入。
+    // 错误信息返回，此部分的jsx必然重新渲染的，但form不会重置。
+    <form onSubmit={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
         <div className="mb-4">
@@ -35,7 +57,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               id="customer"
               name="customerId"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue={state.rawFormData.customerId ?? ''}
+              value={formValues.customerId}
+              onChange={(event) =>
+                setFormValues((currentValues) => ({
+                  ...currentValues,
+                  customerId: event.target.value,
+                }))
+              }
               aria-describedby="customer-error"
             >
               <option value="" disabled>
@@ -74,7 +102,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 name="amount"
                 type="number"
                 step="0.01"
-                defaultValue={state.rawFormData.amount ?? ''}
+                value={formValues.amount}
+                onChange={(event) =>
+                  setFormValues((currentValues) => ({
+                    ...currentValues,
+                    amount: event.target.value,
+                  }))
+                }
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 aria-describedby="amount-error"
@@ -105,7 +139,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   name="status"
                   type="radio"
                   value="pending"
-                  defaultChecked={state.rawFormData.status === 'pending'}
+                  checked={formValues.status === 'pending'}
+                  onChange={() =>
+                    setFormValues((currentValues) => ({
+                      ...currentValues,
+                      status: 'pending',
+                    }))
+                  }
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                   aria-describedby="status-error"
                 />
@@ -122,7 +162,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   name="status"
                   type="radio"
                   value="paid"
-                  defaultChecked={state.rawFormData.status === 'paid'}
+                  checked={formValues.status === 'paid'}
+                  onChange={() =>
+                    setFormValues((currentValues) => ({
+                      ...currentValues,
+                      status: 'paid',
+                    }))
+                  }
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                   aria-describedby="status-error"
                 />
@@ -152,7 +198,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit" disabled={isPending}>Create Invoice</Button>
       </div>
     </form>
   );
