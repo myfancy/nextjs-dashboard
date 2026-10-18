@@ -4,8 +4,33 @@ import {z} from 'zod';
 import postgres from 'postgres';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { signIn } from '@/auth';
+import {AuthError} from 'next-auth';
 
 const sql = postgres(process.env.POSTGRES_URL!,{ssl:'require'});
+
+// 登录验证
+export async function authenticate(
+    prevState:string|undefined,
+    formData:FormData) {
+    try{
+        await signIn('credentials', formData);
+    }catch(error){
+        if(error instanceof AuthError){
+            switch(error.type){
+                case 'CredentialsSignin':
+                    return 'Invalid credentials.';
+                case 'CallbackRouteError':
+                    return 'callback route error.'
+                default:
+                    return 'Something went wrong.';
+            }
+        }
+        throw error;
+    }
+    
+}
+
 
 // 使用zod库进行类型校验，使用方法看zod官网reference
 // z.xx()进行格式约定，里面可以传失败的配置对象。
