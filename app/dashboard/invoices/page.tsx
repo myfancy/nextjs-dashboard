@@ -1,7 +1,7 @@
 // // async function sleep(ms: number) {
 // //   return new Promise(resolve => setTimeout(resolve, ms));
 // // }
-// export default function Page() {
+// export default async function Page() {
 //   // await sleep(2000); // 等待2s，制造pending状态
 //   return <p>invoices Page</p>;
 // }
@@ -13,7 +13,12 @@ import { CreateInvoice } from '@/app/ui/invoices/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { Suspense } from 'react';
-import { fetchInvoicesPages } from '@/app/lib/data'
+import { fetchInvoicesPages } from '@/app/lib/data';
+import { Metadata } from 'next';
+
+export const metadata:Metadata = {
+  title:'发票页'
+}
  
 export default async function Page(props:{
   searchParams?:Promise<{
