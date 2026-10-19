@@ -4,6 +4,11 @@ import Link from 'next/link';
 import styles from '@/app/ui/home.module.css'
 import {lusitana} from '@/app/ui/fonts'
 import Image from 'next/image';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: '未登录页 | ferron独创数据面板',//模板不起效是因为从url角度来讲这不是子页面
+};
 
 export default function Page() {
   return (

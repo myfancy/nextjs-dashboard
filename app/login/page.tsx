@@ -1,6 +1,11 @@
 import AcmeLogo from '@/app/ui/acme-logo';
 import LoginForm from '@/app/ui/login-form';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
+
+export const metadata:Metadata = {
+  title:'登录页',
+}
  
 export default function LoginPage() {
   return (
