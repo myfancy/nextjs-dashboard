@@ -5,22 +5,29 @@ import {
   CustomersTableType,
   FormattedCustomersTable,
 } from '@/app/lib/definitions';
+import {fetchCustomersPages,fetchFilteredCustomers}from '@/app/lib/data';
+import Pagination from '@/app/ui/pagination';
 
 export default async function CustomersTable({
-  customers,
-}: {
-  customers: FormattedCustomersTable[];
+  query,
+  currentPage
+}:{
+  query:string,
+  currentPage:number
 }) {
+  const totalPages = await fetchCustomersPages(query);
+  const customers = await fetchFilteredCustomers(query,currentPage);
   return (
     <div className="w-full">
       <h1 className={`${lusitana.className} mb-8 text-xl md:text-2xl`}>
-        Customers
+        客户
       </h1>
       <Search placeholder="Search customers..." />
       <div className="mt-6 flow-root">
         <div className="overflow-x-auto">
           <div className="inline-block min-w-full align-middle">
             <div className="overflow-hidden rounded-md bg-gray-50 p-2 md:pt-0">
+              {/* 移动端表格 */}
               <div className="md:hidden">
                 {customers?.map((customer) => (
                   <div
@@ -48,37 +55,38 @@ export default async function CustomersTable({
                     </div>
                     <div className="flex w-full items-center justify-between border-b py-5">
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Pending</p>
+                        <p className="text-xs">待支付数</p>
                         <p className="font-medium">{customer.total_pending}</p>
                       </div>
                       <div className="flex w-1/2 flex-col">
-                        <p className="text-xs">Paid</p>
+                        <p className="text-xs">已支付数</p>
                         <p className="font-medium">{customer.total_paid}</p>
                       </div>
                     </div>
                     <div className="pt-4 text-sm">
-                      <p>{customer.total_invoices} invoices</p>
+                      <p>共有 {customer.total_invoices} 发票</p>
                     </div>
                   </div>
                 ))}
               </div>
+              {/* 默认显示表格 */}
               <table className="hidden min-w-full rounded-md text-gray-900 md:table">
                 <thead className="rounded-md bg-gray-50 text-left text-sm font-normal">
                   <tr>
                     <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Name
+                      客户姓名
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Email
+                      电子邮箱
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Total Invoices
+                      总发票数
                     </th>
                     <th scope="col" className="px-3 py-5 font-medium">
-                      Total Pending
+                      待支付数
                     </th>
                     <th scope="col" className="px-4 py-5 font-medium">
-                      Total Paid
+                      已支付数
                     </th>
                   </tr>
                 </thead>
@@ -114,6 +122,9 @@ export default async function CustomersTable({
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="mt-5 flex w-full justify-center">
+              <Pagination totalPages={totalPages} />
             </div>
           </div>
         </div>

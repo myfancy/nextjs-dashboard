@@ -4,6 +4,12 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useSearchParams,useRouter } from 'next/navigation';//获取url的查询参数
 import { useDebouncedCallback } from 'use-debounce'
 
+// 通用的搜索组件，只做一件事：
+// 输入文字时，将文字内容加到url上： /path?query=xxx（router.replace不引发浏览器跳转）
+// 边界处理：新的搜索词给page设为1 /path?query=xxx&page=1
+// 边界处理：没有搜索文字时，删除query
+// 后果：它自己不执行查询，修改表格内容之类的事，而是修改了url以后，其他组件“监控”url的改变。
+
 // 当前组件只干一件事，input value改变就修改url的查询字符串部分。
 export default function Search({ placeholder }: { placeholder: string }) {
   const searchParams = useSearchParams();//这玩意只读的

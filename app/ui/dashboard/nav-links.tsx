@@ -21,7 +21,7 @@ const links = [
     href: '/dashboard/invoices',
     icon: DocumentDuplicateIcon,
   },
-  { name: '用户页', href: '/dashboard/customers', icon: UserGroupIcon },
+  { name: '客户页', href: '/dashboard/customers', icon: UserGroupIcon },
 ];
 
 export default function NavLinks() {
