@@ -1,11 +1,24 @@
-// async function sleep(ms: number) {
-//   return new Promise(resolve => setTimeout(resolve, ms));
-// }
-export default function Page() {
-  // await sleep(2000); // 等待2s，制造pending状态
-  return <p>customers Page</p>;
+import CustomersTable from '@/app/ui/customers/table';
+import { CustomersTableSkeleton } from '@/app/ui/skeletons';
+import { Suspense } from 'react';
+
+export default async function page(props:{
+  searchParams?:Promise<{
+    query?:string,
+    page?:string
+  }>
+}) {
+
+  // CustomersTable 组件中有search组件，它会修改url
+  // 这里从url（server page props）中拿到query词，传递给这个组件
+  const searchParams = await props.searchParams;
+  const query = searchParams?.query || "";
+  const currentPage = Number(searchParams?.page) || 1;
+  return (
+    <>
+      <Suspense key={query + currentPage} fallback={<CustomersTableSkeleton />}>
+      <CustomersTable query={query} currentPage={currentPage}/>
+      </Suspense>
+    </>
+  )
 }
-
-// 模拟异步组件，查看根目录loading.tsx作用范围。
-// 取消模拟，如果没有loading.tsx，异步组件，会在条件达成施加载。
-
